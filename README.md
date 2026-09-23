@@ -65,3 +65,9 @@ stable `1.0.0` release.*
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 for details.
+
+## Contact
+
+For questions, bug reports, or feature requests, please open an issue on the [GitHub repository](https://github.com/mapgl2gisweb/mapgl_2gis_web/issues).
+
+You can also reach out via email at: **mapgl.2gis.web@gmail.com**
