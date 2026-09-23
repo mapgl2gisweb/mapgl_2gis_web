@@ -1,60 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <base href="$FLUTTER_BASE_HREF">
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    <!-- Network optimization hints for the 2GIS MapGL API -->
+    <link rel="preconnect" href="https://mapgl.2gis.com" crossorigin>
+    <link rel="preconnect" href="https://tile0-sdk.maps.2gis.com" crossorigin>
+    <link rel="preconnect" href="https://tile1-sdk.maps.2gis.com" crossorigin>
+    <link rel="preconnect" href="https://styles.api.2gis.com" crossorigin>
+    <link rel="preconnect" href="https://keys.api.2gis.com" crossorigin>
 
-    For more details:
-    * https://mozilla.org
+    <link rel="preload" href="https://mapgl.2gis.com/api/js/v1" as="script">
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="A new Flutter project.">
 
-  <!-- ======================================================================= -->
-  <!-- ОПТИМИЗАЦИЯ СЕТИ ДЛЯ 2ГИС MAPGL API                                      -->
-  <!-- Открываем TCP/TLS соединения заранее, пока грузится движок Flutter       -->
-  <!-- ======================================================================= -->
-  <link rel="preconnect" href="https://2gis.com" crossorigin>
-  <link rel="preconnect" href="https://2gis.com" crossorigin>
-  <link rel="preconnect" href="https://2gis.com" crossorigin>
-  <link rel="preconnect" href="https://2gis.com" crossorigin>
-  <link rel="preconnect" href="https://2gis.com" crossorigin>
+    <!-- iOS meta tags & icons -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="test_2gis_map">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Начинаем фоновое скачивание тяжелого JS-скрипта карты с высшим приоритетом -->
-  <link rel="preload" href="https://2gis.com/api/js/v1" as="script">
-  <!-- ======================================================================= -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+    <title>test_2gis_map</title>
+    <link rel="manifest" href="manifest.json">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="test_2gis_map">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <!-- Splash screen styles -->
+    <style>
+        #splash-screen {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #0d47a1, #7b1fa2);
+          color: white;
+          font-family: Arial, sans-serif;
+          font-size: 2rem;
+          z-index: 9999;
+          transition: opacity 0.3s ease-out;
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+        #splash-screen .app-name {
+          margin-bottom: 10px;
+        }
 
-  <title>test_2gis_map</title>
-  <link rel="manifest" href="manifest.json">
+        .loader {
+          width: 30px;
+          height: 30px;
+          margin-top: 10px;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<!--
-  You can customize the "flutter_bootstrap.js" script.
-  This is useful to provide a custom configuration to the Flutter loader
-  or to give the user feedback during the initialization process.
+<!-- Splash screen -->
+<div id="splash-screen">
+    <div class="app-name">Loading...</div>
+    <div class="loader"></div>
+</div>
 
-  For more details:
-  * https://flutter.dev
--->
 <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

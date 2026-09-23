@@ -1,12 +1,12 @@
-// mapgl_view.dart
+//example/lib/widgets/mapgl_view.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mapgl_2gis_web/mapgl_2gis_web.dart';
 
-/// Виджет карты с готовым UX: статическое превью (если включено),
-/// индикатор загрузки, и плавное появление интерактивной карты.
+/// Map widget with a complete UX: an optional static preview, a loading
+/// indicator, and a smooth transition to the interactive map.
 class MapGlView extends StatefulWidget {
   const MapGlView({
     super.key,
@@ -18,6 +18,7 @@ class MapGlView extends StatefulWidget {
     this.backgroundColor,
     this.loadingBuilder,
     this.onMapCreated,
+    this.onMapReady,
   });
 
   final String apiKey;
@@ -28,6 +29,7 @@ class MapGlView extends StatefulWidget {
   final String? backgroundColor;
   final MapLoadingBuilder? loadingBuilder;
   final MapCreatedCallback? onMapCreated;
+  final MapReadyCallback? onMapReady;
 
   @override
   State<MapGlView> createState() => _MapGlViewState();
@@ -49,22 +51,51 @@ class _MapGlViewState extends State<MapGlView> {
         '&key=${widget.apiKey}';
   }
 
+  /// Desaturation matrix applied to the static preview while the interactive
+  /// map is loading — keeps the underlying image from competing visually
+  /// with the map controls.
+  List<double> matrix = [
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ];
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth.isFinite ? constraints.maxWidth.round() : 800;
         final height = constraints.maxHeight.isFinite ? constraints.maxHeight.round() : 600;
-
+        final staticPreviewUrl = _staticPreviewUrl(width, height);
         return Stack(
           fit: StackFit.expand,
           children: [
             widget.showStaticPreview
-                ? Image.network(
-                    _staticPreviewUrl(width, height),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                    loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
+                ? ColorFiltered(
+                    colorFilter: ColorFilter.matrix(matrix),
+                    child: Image.network(
+                      staticPreviewUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
+                    ),
                   )
                 : widget.loadingBuilder != null
                 ? widget.loadingBuilder!.call(context)
@@ -78,6 +109,7 @@ class _MapGlViewState extends State<MapGlView> {
               onMapCreated: widget.onMapCreated,
               onMapReady: () {
                 if (mounted) setState(() => _mapReady = true);
+                widget.onMapReady?.call();
               },
             ),
             if (!_mapReady) const _MapLoadingOverlay(),
@@ -88,6 +120,9 @@ class _MapGlViewState extends State<MapGlView> {
   }
 }
 
+/// Compact loading indicator shown in the bottom-right corner while the map
+/// is initialising. After a few seconds it also shows a short "loading" hint
+/// so the user knows the process is still running.
 class _MapLoadingOverlay extends StatefulWidget {
   const _MapLoadingOverlay();
 
@@ -131,7 +166,7 @@ class _MapLoadingOverlayState extends State<_MapLoadingOverlay> {
             const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
             if (_showSlowHint) ...[
               const SizedBox(width: 8),
-              Text('Загружаем карту…', style: Theme.of(context).textTheme.bodySmall),
+              Text('Loading map…', style: Theme.of(context).textTheme.bodySmall),
             ],
           ],
         ),

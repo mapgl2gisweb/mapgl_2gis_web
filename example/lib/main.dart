@@ -1,59 +1,70 @@
+//example/lib/main.dart
+
 import 'package:flutter/material.dart';
 import 'package:mapgl_2gis_web/mapgl_2gis_web.dart';
 
-import 'mapgl_view.dart';
+import 'screens/clasterer_screen.dart';
+import 'screens/minimal_screen.dart';
+import 'splash.dart';
 
 void main() {
-  runApp(const MyApp());
+  mapglDebugLoggingEnabled = true;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  warmUpMapgl().catchError((Object e, StackTrace st) {
+    debugPrint('[MapGL] warmUp failed (non-fatal, widget will retry): $e');
+  });
+
+  hideSplash();
+
+  runApp(const ExampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '2GIS MapGL Web Example',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: const MapScreen(),
+      title: 'MapGL 2GIS — Demos',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple), useMaterial3: true),
+      home: const _DemoShell(),
     );
   }
 }
 
-class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+/// Two-tab shell for switching between the minimal demo and the clusterer
+/// demo. As more demos are added, this is the natural place to grow into a
+/// `NavigationRail` or a list-based home page.
+class _DemoShell extends StatefulWidget {
+  const _DemoShell();
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  State<_DemoShell> createState() => _DemoShellState();
 }
 
-class _MapScreenState extends State<MapScreen> {
-  MapglController? _mapController;
+class _DemoShellState extends State<_DemoShell> {
+  int _index = 0;
 
-  // Извлекаем ключ напрямую из параметров компиляции
-  static const String _apiKey = String.fromEnvironment('DGIS_API_KEY');
+  static const _screens = [MinimalScreen(), ClastererScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('2GIS MapGL Web Demo')),
-      body: _apiKey.isEmpty
-          ? const Center(
-              child: Text(
-                'Ошибка: Запустите проект с флагом:\n'
-                '--dart-define=DGIS_API_KEY=ваш_ключ',
-                textAlign: TextAlign.center,
-              ),
-            )
-          : MapGlView(
-              apiKey: _apiKey,
-              backgroundColor: 'transparent',
-              initialCenter: const [38.975313, 45.035470],
-              initialZoom: 12.0,
-              onMapCreated: (controller) {
-                setState(() => _mapController = controller);
-              },
-            ),
+      body: IndexedStack(index: _index, children: _screens),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: (i) => setState(() => _index = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Minimal'),
+          NavigationDestination(
+            icon: Icon(Icons.scatter_plot_outlined),
+            selectedIcon: Icon(Icons.scatter_plot),
+            label: 'Clusters',
+          ),
+        ],
+      ),
     );
   }
 }

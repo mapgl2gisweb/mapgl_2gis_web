@@ -1,11 +1,13 @@
 name: mapgl_2gis_web
 description: A high-performance Flutter Web wrapper for 2GIS MapGL JS API. Fully supports Dart 3 JS Interop and WASM.
-version: 0.0.1
-repository: https://github.com
+version: 0.0.3
+repository: https://github.com/mapgl2gisweb
 issue_tracker: https://github.com/issues
+funding:
+  - mailto:mapgl.2gis.web@gmail.com
 
 environment:
-  sdk: ^3.3.0
+  sdk: ">=3.13.0 <4.0.0"
   flutter: ">=3.44.0"
 
 dependencies:
